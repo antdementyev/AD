@@ -17,124 +17,94 @@ public class MySort {
     private int compareCalls;
     private int swapCalls;
     
-    /**
-     * Generiert ein Set mit Daten.
-     */
-    public void generateDataSet(int size) {
-        dataSet = new HashSet<Data>();
+
+    public Data[] generateDataArray(int size) {
+        Data[] dataArray = new Data[size];
         for (int i=0; i<size; i++) {
-       //     dataSet.add(new Data(i*100+705*size, ""));
-            
-            dataSet.add(new Data((int)((Math.random()+7)*100*size+0.1), ""));
+            dataArray[i] = new Data((int)((Math.random()+7)*100*size), "");
         }        
-        System.out.println(dataSet);
+        return dataArray;
     }
     
-    public void sort(Set<Data> dataSet) {
-        List<List<Data>> gruppen = sortToGroups(dataSet);
-        QuickSort quickSort = new QuickSort();
-        for (List<Data> gruppe : gruppen) {
-            quickSort.quickSort(gruppe, PivotChoice.MEDIAN);   
-        }
-        compareCalls += quickSort.getCompareCounter();
-        swapCalls += quickSort.getSwapCounter();
+    public void sort(Data[] dataArray) {
+        List<List<Data>> gruppen = sortToGroups(dataArray);
+        sortEachGroup(gruppen);
+        rewriteArray(dataArray, gruppen);
     }
         
-    private List<List<Data>> sortToGroups(Set<Data> dataSet) {
+    private List<List<Data>> sortToGroups(Data[] dataArray) {
         List<List<Data>> gruppen = new LinkedList<List<Data>>();
-        for (int i=0; i<dataSet.size(); i++) {
+        for (int i=0; i<dataArray.length; i++) {
             gruppen.add(new LinkedList<Data>());
         }
-        for (Data data : dataSet) {
-            int groupNr = (int) (data.getKey()/dataSet.size()-700);
+        for (Data data : dataArray) {
+            int groupNr = (int) (data.getKey()-700*dataArray.length)/100;
             gruppen.get(groupNr).add(data);
-        }
-        System.out.println(gruppen);
-        
-        
-        
-        
-        
-        
-  ///////////////////////////////////////////      
-   /*     int gruppenAnzahl = getGruppenAnzahl();
-        List<List<Data>> gruppen = new LinkedList<List<Data>>();
-        for (int i=0; i<gruppenAnzahl; i++) {
-            gruppen.add(new LinkedList<Data>());
-        }
-        for (Data data : dataSet) {
-            int groupToSave = 0;
-            int keyMitte = 50;
-            compareCalls += (int)(Math.log(gruppenAnzahl)/Math.log(2));
-            for (int i=(int)(Math.log(gruppenAnzahl)/Math.log(2))-1; i>=0; i--) {
-                if (data.getKey() < (keyMitte+700)*dataSet.size()) {
-                    keyMitte -= keyMitte/2;
-                } else {
-                    keyMitte += keyMitte/2;
-                    groupToSave += Math.pow(2, i); 
-                }
-            }
-            gruppen.get(groupToSave).add(data);
-        }
-        System.out.println(gruppen);
- */ //      System.out.println(compareCalls);
+            compareCalls++;
+        }       
+   //     System.out.println(gruppen);
         return gruppen;
     }
     
-    private int getGruppenAnzahl() {
-        double gruppenAnzahl = dataSet.size(); //Math.sqrt(dataSet.size()); //
-        int potenz = 0;
-        while (gruppenAnzahl > 1) {
-            gruppenAnzahl /= 2;
-            potenz++;
-        }
-        gruppenAnzahl = dataSet.size();//Math.sqrt(dataSet.size()); //
-       /*
-        if (gruppenAnzahl - Math.pow(2, potenz-1)
-                < Math.pow(2, potenz) - gruppenAnzahl) {
-            potenz--;
-        }
-        */
-        return (int)Math.pow(2, potenz);        
-    }
-    
-    private void sortList(List<Data> list) {
+    private void sortEachGroup(List<List<Data>> gruppen) {
         QuickSort quickSort = new QuickSort();
-        quickSort.quickSort(list, PivotChoice.MEDIAN);
+        for (List<Data> gruppe : gruppen) {
+            if (gruppe.size() > 1) {
+                quickSort.quickSort(gruppe, PivotChoice.MEDIAN);                
+            }
+            compareCalls++;
+        }
         compareCalls += quickSort.getCompareCounter();
         swapCalls += quickSort.getSwapCounter();
     }
+      
+    private void rewriteArray(Data[] dataArray, List<List<Data>> gruppen) {
+        int index = 0;
+        for (int i=0; i<gruppen.size(); i++) {
+            compareCalls++;
+            List<Data> gruppe = gruppen.get(i);
+            for (int j=0; j<gruppe.size(); j++) {
+                compareCalls++;
+                dataArray[index] = gruppe.get(j);
+                index++;
+            }
+        }
+    }
     
+    public void printDataArray(Data[] dataArray) {
+        System.out.print("[");
+        for (int i=0; i<dataArray.length; i++) {
+            System.out.print(dataArray[i] + ", ");
+        }
+        System.out.println("]");
+    }
     
+////////////////////////////////////////////////////////////////////////////////////////////    
     public static void main(String[] args) {
         MySort mySort = new MySort();
-        mySort.generateDataSet(100);
-        System.out.println(mySort.getGruppenAnzahl());
+        Data[] dataArray = mySort.generateDataArray(10000);
         
-        mySort.sort(mySort.dataSet);
+        List<Data> list = new LinkedList<Data>();
+        for (Data data : dataArray) {
+            list.add(data);
+        }
         
-  //      System.out.println(mySort.dataSet);
+  //      mySort.printDataArray(dataArray);
+        mySort.sort(dataArray);
+  //      mySort.printDataArray(dataArray);
         
-        System.out.println("--------------------------------------");
+        QuickSort quickSort = new QuickSort();
+        quickSort.quickSort(list, PivotChoice.MEDIAN);    
+        System.out.println(list);
         
         System.out.println(mySort.compareCalls + " + " + mySort.swapCalls + 
                 " = " + (mySort.compareCalls + mySort.swapCalls));
         
-        List<Data> list = new LinkedList<Data>();
-        for (Data data : mySort.dataSet) {
-            list.add(data);
-        }
-        QuickSort quickSort = new QuickSort();
-        
-        Collections.shuffle(list);
-        
-        quickSort.quickSort(list, PivotChoice.MEDIAN);
-        
+        System.out.println("--------------------------------------");
+
+    
         System.out.println(quickSort.getCompareCounter() + " + " + quickSort.getSwapCounter() + 
                 " = " + (quickSort.getCompareCounter() + quickSort.getSwapCounter()));
-        
-
-        
 
     }
 }

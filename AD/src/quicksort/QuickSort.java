@@ -146,7 +146,6 @@ public class QuickSort {
             if (left != right) {
                 swap(daten, left, right);
                 left++;
-                right--;
             }
         }
         sortMedian(daten, startIndex, left-1);
@@ -187,28 +186,21 @@ public class QuickSort {
         QuickSort sort = new QuickSort();
         
         List<Data> daten = new ArrayList<Data>();
+        daten.add(new Data(71098, ""));
+        daten.add(new Data(71062, ""));
+        daten.add(new Data(71078, ""));
+        /*
         int n = 1000;
         for (int i=0; i<n; i++) {
-          //  daten.add(new Datensatz(i, ""));
-            
             daten.add(new Data((int)(Math.random()*n), ""));
         }
+        */
         
-        List<Data> daten2 = new ArrayList<Data>(daten);
-        List<Data> daten3 = new ArrayList<Data>(daten);
-        
+        sort.quickSort(daten, PivotChoice.MEDIAN);
+        System.out.println(daten);
+        System.out.format("tiefe %d, swap %d, compare %d", sort.getSortCounter(), sort.getSwapCounter(), sort.getCompareCounter());
+        sort.resetCounter();
 
-        sort.quickSort(daten, PivotChoice.FIRST);
-        System.out.format("tiefe %d, swap %d, compare %d", sort.getSortCounter(), sort.getSwapCounter(), sort.getCompareCounter());
-        sort.resetCounter();
-        System.out.println("--------------");
-        sort.quickSort(daten2, PivotChoice.MEDIAN);
-        System.out.format("tiefe %d, swap %d, compare %d", sort.getSortCounter(), sort.getSwapCounter(), sort.getCompareCounter());
-        sort.resetCounter();
-        System.out.println("--------------");
-        sort.quickSort(daten3, PivotChoice.RANDOM);
-        System.out.format("tiefe %d, swap %d, compare %d", sort.getSortCounter(), sort.getSwapCounter(), sort.getCompareCounter());
-        sort.resetCounter();
         
     }
 }
