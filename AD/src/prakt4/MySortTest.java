@@ -25,7 +25,7 @@ public class MySortTest {
         mySort.sort(daten);
         mySort.printDataArray(daten);
         for (int i=0; i<daten.length-1; i++) {
-            assertEquals( "" + i, true, daten[i].getKey() <= daten[i+1].getKey());
+            assertEquals( "" + daten[i].getKey(), true, daten[i].getKey() <= daten[i+1].getKey());
         }
     }
     

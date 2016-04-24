@@ -25,7 +25,6 @@ public class MySort {
     public void sort(Data[] dataArray) {
         List<List<Data>> gruppen = sortToGroups(dataArray);
         sortEachGroupAndRewriteArray(gruppen, dataArray);
-  //      rewriteArray(dataArray, gruppen);
     }
         
     private List<List<Data>> sortToGroups(Data[] dataArray) {
@@ -47,14 +46,15 @@ public class MySort {
     
     private void sortEachGroupAndRewriteArray(List<List<Data>> gruppen, Data[] dataArray) {
         QuickSort quickSort = new QuickSort();
-        for (List<Data> gruppe : gruppen) {
+        for (int i=0; i<gruppen.size(); i++) {
+            compareCalls++;
+            List<Data> gruppe = gruppen.get(i);
             if (gruppe.size() > 1) {
                 quickSort.quickSort(gruppe, PivotChoice.MEDIAN);                
             }
-            compareCalls++;
-            for (int i=0; i<gruppe.size(); i++) {
+            for (int j=0; j<gruppe.size(); j++) {
                 compareCalls++;
-                dataArray[indexToResave] = gruppe.get(i);
+                dataArray[indexToResave] = gruppe.get(j);
                 indexToResave++;
             }
         }
@@ -74,7 +74,7 @@ public class MySort {
     public static void main(String[] args) {
         
         ////////////////////
-        int n = 100;
+        int n = 1000;
         /////////////////////
         
         
@@ -91,7 +91,7 @@ public class MySort {
         mySort.printDataArray(dataArray);
         
         QuickSort quickSort = new QuickSort();
-        quickSort.quickSort(list, PivotChoice.MEDIAN);    
+//        quickSort.quickSort(list, PivotChoice.MEDIAN);    
         System.out.println(list);
         
         System.out.println(mySort.compareCalls + " + " + mySort.swapCalls + 
