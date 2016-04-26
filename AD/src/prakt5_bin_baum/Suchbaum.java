@@ -3,19 +3,39 @@ package prakt5_bin_baum;
 public class Suchbaum {
 
     private Knoten root;
+    private int baumSumme;
     
-    public Suchbaum(int... werte) {
+    public Suchbaum(int... werte) throws IllegalAccessException {
         for (int wert : werte) {
             addKnoten(wert);
         }
     }
     
-    public void addKnoten(int wert) {
+    public void addKnoten(int wert) throws IllegalAccessException {
+        if (wert < 0) {
+            throw new IllegalAccessException();
+        }
+        baumSumme += wert;
         if (root == null) {
             root = new Knoten(wert);
         } else {
             addKnoten(wert, root);            
         }
+    }
+    
+    public int getSummeZwieschen(int grenzeLinkst, int grenzeRechts) throws IllegalAccessException {
+        if (grenzeLinkst > grenzeRechts) {
+            throw new IllegalAccessException();
+        }
+        Knoten kleinM = getKleinM(grenzeLinkst, root);
+        Knoten grossM = getGrossM(grenzeRechts, root);
+        if (kleinM == null || grossM == null) {
+            return -1;
+        } else {
+            return baumSumme - kleinM.getSummeKnotenLinks()
+                    - grossM.getSummeKnotenRechts();
+        }
+        
     }
     
     private void addKnoten(int wert, Knoten knoten) {
@@ -75,7 +95,7 @@ public class Suchbaum {
                 }
             }
         } else {
-            if (knoten.getLinks() == null){
+            if (knoten.getLinks() == null) {
                 grossM = null;
             } else {
                 grossM = getGrossM(wert, knoten.getLinks());
@@ -85,9 +105,9 @@ public class Suchbaum {
     }
     
     ////////////////////////////////////////////////////////////////////
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IllegalAccessException {
         Suchbaum baum = new Suchbaum(7,3,10,0,5,9,12,1);
-        System.out.println(baum.getGrossM(13, baum.root));
+        System.out.println(baum.getSummeZwieschen(4, 12));
     }
     
 }
