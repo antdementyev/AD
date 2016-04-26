@@ -3,7 +3,6 @@ package prakt5_bin_baum;
 public class Suchbaum {
 
     private Knoten root;
-    private int baumSumme;
     
     public Suchbaum(int... werte) throws IllegalAccessException {
         for (int wert : werte) {
@@ -15,7 +14,6 @@ public class Suchbaum {
         if (wert < 0) {
             throw new IllegalAccessException();
         }
-        baumSumme += wert;
         if (root == null) {
             root = new Knoten(wert);
         } else {
@@ -23,50 +21,60 @@ public class Suchbaum {
         }
     }
     
-    public int getSummeZwieschen(int grenzeLinkst, int grenzeRechts) throws IllegalAccessException {
-        if (grenzeLinkst > grenzeRechts) {
+    public int getSummeZwischen(int grenzeLinks, int grenzeRechts) throws IllegalAccessException {
+        if (grenzeLinks > grenzeRechts) {
             throw new IllegalAccessException();
         }
-        Knoten kleinM = getKleinM(grenzeLinkst, root);
-        Knoten grossM = getGrossM(grenzeRechts, root);
-        if (kleinM == null || grossM == null) {
-            return -1;
-        } else {
-            return baumSumme - kleinM.getSummeKnotenLinks()
-                    - grossM.getSummeKnotenRechts();
-        }
+        return getKleinMSumme(grenzeLinks-0.5, root)
+                - getKleinMSumme(grenzeRechts+0.5, root);
+        
+        
+        
+        
+        
+        
+
         
     }
     
-    private void addKnoten(int wert, Knoten knoten) {
+    private boolean addKnoten(int wert, Knoten knoten) {
+        boolean erfolg = true;
         if (knoten.getWert() == wert) {
             System.out.println("Wert schon enthalten");
+            erfolg = false;
         } else if (wert < knoten.getWert()) {
-            knoten.addSummeKnotenLinks(wert);
+                knoten.addSummeKnotenLinks(wert);                
             if (knoten.getLinks() == null) {
                 knoten.setLinks(new Knoten(wert));
             } else {
-                addKnoten(wert, knoten.getLinks());                
+                if (!addKnoten(wert, knoten.getLinks())){
+                    erfolg = false;
+                    knoten.addSummeKnotenLinks(-wert); 
+                }              
             }
         } else {
-            knoten.addSummeKnotenRechts(wert);
+                knoten.addSummeKnotenRechts(wert);                
             if (knoten.getRechts() == null) {
                 knoten.setRechts(new Knoten(wert));
             } else {
-                addKnoten(wert, knoten.getRechts());                
+                if (!addKnoten(wert, knoten.getRechts())){
+                    erfolg = false;
+                    knoten.addSummeKnotenRechts(-wert);             
+                }
             }
         }
+        return erfolg;
     }
     
-    private Knoten getKleinM(int wert, Knoten knoten) {
+    public Knoten getKleinM(int wertLinkeGrenze, Knoten knoten) {
         Knoten kleinM;
-        if (wert == knoten.getWert()) {
+        if (wertLinkeGrenze == knoten.getWert()) {
             kleinM = knoten;
-        } else if (wert < knoten.getWert()) {
+        } else if (wertLinkeGrenze < knoten.getWert()) {
             if (knoten.getLinks() == null) {
                 kleinM = knoten;
             } else {
-                kleinM = getKleinM(wert, knoten.getLinks());
+                kleinM = getKleinM(wertLinkeGrenze, knoten.getLinks());
                 if (kleinM == null) {
                     kleinM = knoten;
                 }
@@ -75,13 +83,31 @@ public class Suchbaum {
             if (knoten.getRechts() == null){
                 kleinM = null;
             } else {
-                kleinM = getKleinM(wert, knoten.getRechts());
+                kleinM = getKleinM(wertLinkeGrenze, knoten.getRechts());
             }
         }
         return kleinM;
     }
     
-    private Knoten getGrossM(int wert, Knoten knoten) {
+    private int getKleinMSumme(double wertLinkeGrenze, Knoten knoten) {
+        int summe = 0;
+        if (Math.abs(wertLinkeGrenze - knoten.getWert()) < 0.1) {
+            summe = knoten.getWert()+knoten.getSummeKnotenRechts();
+        } else if (wertLinkeGrenze < knoten.getWert()) {
+            summe = knoten.getSummeKnotenRechts() + knoten.getWert();
+            if (knoten.getLinks() != null) {
+                summe += getKleinMSumme(wertLinkeGrenze, knoten.getLinks());
+            }
+        } else {
+            if (knoten.getRechts() != null){
+                summe = getKleinMSumme(wertLinkeGrenze, knoten.getRechts());
+            }
+        }
+        return summe;
+    }
+    
+    
+    public Knoten getGrossM(int wert, Knoten knoten) {
         Knoten grossM;
         if (wert == knoten.getWert()) {
             grossM = knoten;
@@ -104,10 +130,35 @@ public class Suchbaum {
         return grossM;
     }
     
+    private int getGrossMSumme(int wertRechteGrenze, Knoten knoten) {
+        int summe = 0;
+        if (wertRechteGrenze == knoten.getWert()) {
+            summe = knoten.getWert()+knoten.getSummeKnotenLinks();
+        } else if (wertRechteGrenze > knoten.getWert()) {
+            summe = knoten.getSummeKnotenLinks() + knoten.getWert();
+            if (knoten.getRechts() != null) {
+                summe += getGrossMSumme(wertRechteGrenze, knoten.getRechts());
+            }
+        } else {
+            if (knoten.getLinks() != null){
+                summe = getGrossMSumme(wertRechteGrenze, knoten.getLinks());
+            }
+        }
+        return summe;
+    }
+    
+    
     ////////////////////////////////////////////////////////////////////
     public static void main(String[] args) throws IllegalAccessException {
         Suchbaum baum = new Suchbaum(7,3,10,0,5,9,12,1);
-        System.out.println(baum.getSummeZwieschen(4, 12));
+        System.out.println(baum.getKleinM(3, baum.root));
+        System.out.println(baum.getSummeZwischen(3, 6));
+        System.out.println("---------------");
+        System.out.println(baum.getKleinMSumme(0, baum.root));
+        System.out.println(baum.getKleinMSumme(5, baum.root));
+        System.out.println("------------");
+        System.out.println(baum.getGrossMSumme(-1, baum.root.getLinks()));
+        
     }
     
 }

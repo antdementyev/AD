@@ -13,9 +13,11 @@ public class SuchbaumTest {
         for (int i=0; i<werte.length; i++) {
             werte[i] = (int)(Math.random()*1000);
         }
+     
+       // int[] werte = {7,3,10,0,5,9,12,12,1,1};
         
-        int linkeGrenze = 5;
-        int rechteGrenze = 1005;
+        int linkeGrenze = 300;
+        int rechteGrenze = 1000;
         
         int summeSoll = 0;
         for (int wert : werte) {
@@ -25,7 +27,9 @@ public class SuchbaumTest {
         }
         
         Suchbaum baum = new Suchbaum(werte);
-        assertEquals(summeSoll, baum.getSummeZwieschen(linkeGrenze, rechteGrenze));
+        System.out.println(summeSoll);
+        System.out.println(baum.getSummeZwischen(linkeGrenze, rechteGrenze));
+        assertEquals(summeSoll, baum.getSummeZwischen(linkeGrenze, rechteGrenze));
         
         
     }
