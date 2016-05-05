@@ -25,16 +25,8 @@ public class Suchbaum {
         if (grenzeLinks > grenzeRechts) {
             throw new IllegalAccessException();
         }
-        return getKleinMSumme(grenzeLinks-0.5, root)
-                - getKleinMSumme(grenzeRechts+0.5, root);
-        
-        
-        
-        
-        
-        
-
-        
+        return getSummeVonMBisEnde(grenzeLinks-0.5, root)
+                - getSummeVonMBisEnde(grenzeRechts+0.5, root);
     }
     
     private boolean addKnoten(int wert, Knoten knoten) {
@@ -89,18 +81,18 @@ public class Suchbaum {
         return kleinM;
     }
     
-    private int getKleinMSumme(double wertLinkeGrenze, Knoten knoten) {
+    private int getSummeVonMBisEnde(double wertLinkeGrenze, Knoten knoten) {
         int summe = 0;
         if (Math.abs(wertLinkeGrenze - knoten.getWert()) < 0.1) {
             summe = knoten.getWert()+knoten.getSummeKnotenRechts();
         } else if (wertLinkeGrenze < knoten.getWert()) {
             summe = knoten.getSummeKnotenRechts() + knoten.getWert();
             if (knoten.getLinks() != null) {
-                summe += getKleinMSumme(wertLinkeGrenze, knoten.getLinks());
+                summe += getSummeVonMBisEnde(wertLinkeGrenze, knoten.getLinks());
             }
         } else {
             if (knoten.getRechts() != null){
-                summe = getKleinMSumme(wertLinkeGrenze, knoten.getRechts());
+                summe = getSummeVonMBisEnde(wertLinkeGrenze, knoten.getRechts());
             }
         }
         return summe;
@@ -152,10 +144,10 @@ public class Suchbaum {
     public static void main(String[] args) throws IllegalAccessException {
         Suchbaum baum = new Suchbaum(7,3,10,0,5,9,12,1);
         System.out.println(baum.getKleinM(3, baum.root));
-        System.out.println(baum.getSummeZwischen(3, 6));
+        System.out.println(baum.getSummeZwischen(4,11));
         System.out.println("---------------");
-        System.out.println(baum.getKleinMSumme(0, baum.root));
-        System.out.println(baum.getKleinMSumme(5, baum.root));
+        System.out.println(baum.getSummeVonMBisEnde(0, baum.root));
+        System.out.println(baum.getSummeVonMBisEnde(5, baum.root));
         System.out.println("------------");
         System.out.println(baum.getGrossMSumme(-1, baum.root.getLinks()));
         
