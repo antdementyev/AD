@@ -1,4 +1,4 @@
-package quicksort;
+package prakt3_quicksort;
 
 public class Data {
     

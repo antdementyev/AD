@@ -1,10 +1,10 @@
-package prakt4;
+package prakt4_mysort;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import quicksort.Data;
+import prakt3_quicksort.Data;
 
 public class MySortTest {
 

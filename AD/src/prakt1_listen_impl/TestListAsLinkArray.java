@@ -1,15 +1,16 @@
-package listen_impl;
+package prakt1_listen_impl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-public class TestListAsLink {
-    
+public class TestListAsLinkArray {
+
     IList<String> list;
     
     private IList<String> getNewList() {
-        return new ListAsLink<String>();
+        return new ListAsLinkArray<String>();
     }
     
     @Test
@@ -201,10 +202,11 @@ public class TestListAsLink {
     public void counter() {
         list = getNewList();
         assertEquals("Counter der neuen Liste ist nicht 0", 0, list.getCounter());
-         
+        
+        list.size();
+        
         list.resetCounter();
         assertEquals("resetCounter() setzt den Zeitcounter auf 0 nicht", list.getCounter(), 0);
         
     }
-    
 }

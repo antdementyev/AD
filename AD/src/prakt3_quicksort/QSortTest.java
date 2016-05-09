@@ -1,4 +1,4 @@
-package quicksort;
+package prakt3_quicksort;
 
 import static org.junit.Assert.*;
 
@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import quicksort.QuickSort.PivotChoice;
+import prakt3_quicksort.QuickSort.PivotChoice;
 
 public class QSortTest {
 

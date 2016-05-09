@@ -1,4 +1,4 @@
-package quicksort;
+package prakt3_quicksort;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,11 +1,11 @@
-package prakt4;
+package prakt4_mysort;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import quicksort.Data;
-import quicksort.QuickSort;
-import quicksort.QuickSort.PivotChoice;
+import prakt3_quicksort.Data;
+import prakt3_quicksort.QuickSort;
+import prakt3_quicksort.QuickSort.PivotChoice;
 
 public class MySort {
  
