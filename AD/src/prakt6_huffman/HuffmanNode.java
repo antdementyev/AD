@@ -3,7 +3,7 @@ package prakt6_huffman;
 public class HuffmanNode {
 
     private final char character;
-    private final int frequence;
+    private int frequence;
     private final HuffmanNode left;
     private final HuffmanNode right;
     
@@ -14,6 +14,15 @@ public class HuffmanNode {
         this.right = right;
     }
 
+    public void increaseFrequence() {
+        frequence++;
+    }
+
+    @Override
+    public String toString() {
+        return character + " - " + frequence;
+    }
+    
     public char getCharacter() {
         return character;
     }
@@ -29,5 +38,4 @@ public class HuffmanNode {
     public HuffmanNode getRight() {
         return right;
     }
-    
 }
