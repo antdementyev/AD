@@ -11,18 +11,18 @@ public class IpAdresse {
     private final int ASCII_START = 32;
     private final int ASCII_END = 126;
     private final double MAX_LOAD_FACTOR = 0.8;
-    private int divisionFaktor;
-    private int divisionFaktor2;
+    private final double MIN_LOAD_FACTOR = 0.5;
     
     private String log;
     private List<String>[] hashTabelle;
     private int plaetzeBelegt;
+    private List<Integer> anzahlKolis = new LinkedList<Integer>();
+    int tableUpdates = -1;
+    
 
     public IpAdresse(int entriesQty) {
         log = "";
-        resetHashTable(entriesQty);
-        divisionFaktor = getNextPrimzahlAb(hashTabelle.length);
-        divisionFaktor2 = getNextPrimzahlAb(divisionFaktor/2);
+        resetHashTable(getNextPrimzahlAb(entriesQty));
         for (int i=0; i<entriesQty; i++) {
             addRandomLogEintrag();
         }
@@ -63,9 +63,8 @@ public class IpAdresse {
         plaetzeBelegt++;
         if ((double)plaetzeBelegt/hashTabelle.length > MAX_LOAD_FACTOR) {
             // initialisere Funktionen neu
-            resetHashTable((int)(hashTabelle.length*1.5)); 
-            divisionFaktor = getNextPrimzahlAb(hashTabelle.length);
-            divisionFaktor2 = getNextPrimzahlAb(divisionFaktor/2);
+            int sizeNewTable = (int)(plaetzeBelegt / MIN_LOAD_FACTOR);
+            resetHashTable(getNextPrimzahlAb(sizeNewTable)); 
             // resave all log entries
             for (String zeile : log.split("\n")) {
                 saveLogEntryIntoTable(zeile);
@@ -86,6 +85,9 @@ public class IpAdresse {
         for (int i=0; i<hashTabelle.length; i++) {
             hashTabelle[i] = new LinkedList<String>();
         }
+        // neue Tabelle - neue Statistik
+        tableUpdates++;
+        anzahlKolis.add(tableUpdates);
     }
     
     private void saveLogEntryIntoTable(String entry) {
@@ -97,7 +99,11 @@ public class IpAdresse {
         int key = getKey(ip);
         while (!hashTabelle[key].isEmpty() 
                 && getIpFromLogEntry(hashTabelle[key].get(0)) != ip) {
-            key = (key + getStep(ip)) % hashTabelle.length;
+            int kol = anzahlKolis.get(tableUpdates);
+            kol++;
+            anzahlKolis.set(tableUpdates, kol);
+            int step = getStep(ip);
+            key = (key + step) % hashTabelle.length;
         }
         return key;
     }
@@ -122,25 +128,29 @@ public class IpAdresse {
      */
     private double getIpFromLogEntry(String zeile) {
         String ipString = zeile.substring(0, zeile.indexOf(TRENN_ZEICHEN));
-        int ipInt = 0;
-        for (String ipTeil : ipString.split(".")) {
+        double ipInt = 0;
+        for (String ipTeil : ipString.split("\\.")) {
             ipInt = ipInt*1000 + Integer.valueOf(ipTeil);
         }
         return ipInt;
     }
     
     private int getKey(double ip) {
-        return (int)(ip%divisionFaktor) % hashTabelle.length;
+        return (int)(ip%hashTabelle.length);
     }
     
     private int getStep(double ip) {
-        return (int) (ip%divisionFaktor2);
+        return 1 + (int) (ip%(hashTabelle.length-1));
     }
     
     public static void main(String[] args) {
-        IpAdresse ip = new IpAdresse(5);
-        System.out.println(ip.findAllEntriesLike(ip.hashTabelle[0].get(0)));
-        System.out.println(ip.getNextPrimzahlAb(-87));
+        IpAdresse ip = new IpAdresse(1);
+//        System.out.println(ip.findAllEntriesLike(ip.hashTabelle[0].get(0)));
+        for (int i=0; i<2000; i++) {
+            ip.addRandomLogEintrag();
+        }
+        
+        System.out.println(ip.anzahlKolis);
     }
     
 }
