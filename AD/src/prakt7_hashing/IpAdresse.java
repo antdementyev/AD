@@ -1,42 +1,42 @@
 package prakt7_hashing;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class IpAdresse {
     
     private final String TRENN_ZEICHEN = " -- ";
-    private final int ASCII_START = 32;
-    private final int ASCII_END = 126;
+    private final int ASCII_START = 65;
+    private final int ASCII_END = 122;
     private final double MAX_LOAD_FACTOR = 0.8;
     private final double MIN_LOAD_FACTOR = 0.5;
     
     private String log;
     private List<String>[] hashTabelle;
     private int plaetzeBelegt;
-    private List<Integer> anzahlKolis = new LinkedList<Integer>();
-    int tableUpdates = -1;
-    
+  //  private List<Integer> anzahlKolis = new LinkedList<Integer>();
+  //  int tableUpdates = -1;
+    private int kollisionen = 0;
 
     public IpAdresse(int entriesQty) {
         log = "";
         resetHashTable(getNextPrimzahlAb(entriesQty));
-        for (int i=0; i<entriesQty; i++) {
-            addRandomLogEintrag();
-        }
+        addRandomLogEintrag(entriesQty);
     }
     
-    private void addRandomLogEintrag() {
-        String eintrag = getRandomLogEintrag();
-        if (!log.isEmpty()) {
-            log += "\n";
-        }
-        log += eintrag;
-        updateHashTabelle(eintrag);    }
+    public void addRandomLogEintrag(int entriesQty) {
+        for (int i=0; i<entriesQty; i++) {
+            String eintrag = createRandomLogEintrag();
+            if (!log.isEmpty()) {
+                log += "\n";
+            }
+            log += eintrag;
+            updateHashTabelle(eintrag);
+        }    }
     
-    private String getRandomLogEintrag() {
+    private String createRandomLogEintrag() {
         StringBuilder zeile = new StringBuilder();
         // random xxx.xxx.xxx.xxx
         for (int j=0; j<4; j++) {
@@ -61,33 +61,36 @@ public class IpAdresse {
     
     private void updateHashTabelle(String newEntry) {
         plaetzeBelegt++;
+        
         if ((double)plaetzeBelegt/hashTabelle.length > MAX_LOAD_FACTOR) {
-            // initialisere Funktionen neu
-            int sizeNewTable = (int)(plaetzeBelegt / MIN_LOAD_FACTOR);
-            resetHashTable(getNextPrimzahlAb(sizeNewTable)); 
+            int sizeNewTable = getNextPrimzahlAb((int)(plaetzeBelegt / MIN_LOAD_FACTOR));
+            resetHashTable(sizeNewTable); 
             // resave all log entries
             for (String zeile : log.split("\n")) {
                 saveLogEntryIntoTable(zeile);
             }
+            System.out.println("[INFO] Anzahl der Eintraege " + plaetzeBelegt 
+                    + ". Vergroessere Tabelle bis " + sizeNewTable 
+                    + " und rehashe. Kollisionen: " + kollisionen);        
         } else {
             saveLogEntryIntoTable(newEntry);
         }
     }
     
-    private List<String> findAllEntriesLike(String logEntry) {
-        double ip = getIpFromLogEntry(logEntry);
+    public List<String> findAllEntriesFor(double ip) {
         int index = findIndexForIp(ip);
         return hashTabelle[index];
     }
     
+    @SuppressWarnings("unchecked")
     private void resetHashTable(int qty) {
         hashTabelle = new List[qty];
         for (int i=0; i<hashTabelle.length; i++) {
             hashTabelle[i] = new LinkedList<String>();
         }
         // neue Tabelle - neue Statistik
-        tableUpdates++;
-        anzahlKolis.add(tableUpdates);
+     //   tableUpdates++;
+     //   anzahlKolis.add(tableUpdates);
     }
     
     private void saveLogEntryIntoTable(String entry) {
@@ -96,13 +99,14 @@ public class IpAdresse {
     }
     
     private int findIndexForIp(double ip) {
-        int key = getKey(ip);
+        int key = getIndexWithSondFunktion(ip);
         while (!hashTabelle[key].isEmpty() 
                 && getIpFromLogEntry(hashTabelle[key].get(0)) != ip) {
-            int kol = anzahlKolis.get(tableUpdates);
-            kol++;
-            anzahlKolis.set(tableUpdates, kol);
-            int step = getStep(ip);
+       //     int kol = anzahlKolis.get(tableUpdates);
+       //     kol++;
+            kollisionen++;
+       //     anzahlKolis.set(tableUpdates, kol);
+            int step = getStepWithSondFunktion2(ip);
             key = (key + step) % hashTabelle.length;
         }
         return key;
@@ -128,29 +132,72 @@ public class IpAdresse {
      */
     private double getIpFromLogEntry(String zeile) {
         String ipString = zeile.substring(0, zeile.indexOf(TRENN_ZEICHEN));
-        double ipInt = 0;
+        double ipDouble = 0;
         for (String ipTeil : ipString.split("\\.")) {
-            ipInt = ipInt*1000 + Integer.valueOf(ipTeil);
+            ipDouble = ipDouble*1000 + Integer.valueOf(ipTeil);
         }
-        return ipInt;
+        return ipDouble;
     }
     
-    private int getKey(double ip) {
+    private int getIndexWithSondFunktion(double ip) {
         return (int)(ip%hashTabelle.length);
     }
     
-    private int getStep(double ip) {
+    private int getStepWithSondFunktion2(double ip) {
         return 1 + (int) (ip%(hashTabelle.length-1));
     }
     
-    public static void main(String[] args) {
-        IpAdresse ip = new IpAdresse(1);
-//        System.out.println(ip.findAllEntriesLike(ip.hashTabelle[0].get(0)));
-        for (int i=0; i<2000; i++) {
-            ip.addRandomLogEintrag();
-        }
+    public void handleInput(String input) {
+        final String IPADDRESS_PATTERN = 
+                "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                 "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                 "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                 "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
         
-        System.out.println(ip.anzahlKolis);
+        if (Pattern.matches(IPADDRESS_PATTERN, input)) {
+            // Audgabe des gespeicherten Eintrags
+            double ipDouble = 0;
+            kollisionen = 0;
+            for (String ipTeil : input.split("\\.")) {
+                ipDouble = ipDouble*1000 + Integer.valueOf(ipTeil);
+            }
+            System.out.println(findAllEntriesFor(ipDouble));
+            System.out.println("[INFO] Kollisionen bei der Suche " + kollisionen);
+            
+        } else if (Pattern.matches("\\d{1,5}", input)) {
+            // Fuege n Eintraege hinzu
+            kollisionen = 0;
+            addRandomLogEintrag(Integer.valueOf(input));
+            System.out.println("[INFO] " + input + " entries added. Kollisionen: " + kollisionen);
+            
+        } else if (input.equals("log")) {
+            // zeige log Datei
+            System.out.println(log);
+            System.out.println("INFO " + plaetzeBelegt + " entries");
+            
+        } else if (input.equals("hash")) {
+            // zeige hashTabelle
+            for (List<String> ipEintrag : hashTabelle) {
+                System.out.println(ipEintrag);                
+            }
+            
+        } else if (input.equals("exit")) {
+            System.out.println("Ende.");
+            
+        } else {
+            System.out.println("Unsinn");
+        }
+    }
+        
+    public static void main(String[] args) {
+        IpAdresse ip = new IpAdresse(0);      
+        Scanner scanner = new Scanner(System.in);
+        String input = "";
+        while (!input.equals("exit")) {
+            input = scanner.nextLine();
+            ip.handleInput(input);    
+        }
+        scanner.close();
     }
     
 }
