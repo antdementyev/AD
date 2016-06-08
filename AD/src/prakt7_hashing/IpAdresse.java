@@ -21,9 +21,12 @@ public class IpAdresse {
     private int kollisionen = 0;
 
     public IpAdresse(int entriesQty) {
+        long startTime = System.nanoTime();
         log = "";
         resetHashTable(getNextPrimzahlAb(entriesQty));
         addRandomLogEintrag(entriesQty);
+        System.out.println(entriesQty + " Eintraege waehrend " 
+                    + (System.nanoTime()-startTime)/1000000000 + " sek erzeugt.");
     }
     
     public void addRandomLogEintrag(int entriesQty) {
@@ -34,7 +37,10 @@ public class IpAdresse {
             }
             log += eintrag;
             updateHashTabelle(eintrag);
-        }    }
+ /*           if (i%1000 == 0) {
+                System.out.println(i);
+            }
+  */      }    }
     
     private String createRandomLogEintrag() {
         StringBuilder zeile = new StringBuilder();
@@ -164,7 +170,7 @@ public class IpAdresse {
             System.out.println(findAllEntriesFor(ipDouble));
             System.out.println("[INFO] Kollisionen bei der Suche " + kollisionen);
             
-        } else if (Pattern.matches("\\d{1,5}", input)) {
+        } else if (Pattern.matches("\\d{1,7}", input)) {
             // Fuege n Eintraege hinzu
             kollisionen = 0;
             addRandomLogEintrag(Integer.valueOf(input));
@@ -190,7 +196,9 @@ public class IpAdresse {
     }
         
     public static void main(String[] args) {
-        IpAdresse ip = new IpAdresse(0);      
+
+        IpAdresse ip = new IpAdresse(00);
+
         Scanner scanner = new Scanner(System.in);
         String input = "";
         while (!input.equals("exit")) {
